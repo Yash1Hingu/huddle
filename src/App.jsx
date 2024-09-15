@@ -1,9 +1,11 @@
 import Dashboard from "./pages/Dashboard";
+import WelcomePage from "./pages/WelcomePage";
 
 function App() {
   return (
     <>
-      <Dashboard />
+      {/* <Dashboard /> */}
+      <WelcomePage />
     </>
   )
 }
