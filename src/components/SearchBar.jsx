@@ -2,7 +2,7 @@ import { ArrowBack, ArrowForward, HelpOutline, History } from '@mui/icons-materi
 import { Avatar } from '@mui/material';
 
 function SearchBar({ isOnline }) {
-    return (<div className='flex items-center justify-end bg-secondary text-white px-4 py-2 max-w-[2000px] m-auto'>
+    return (<div className='flex items-center justify-end bg-secondary text-white px-4 py-2 w-full m-auto'>
         <div
             className='flex items-center justify-center w-full'
         >
