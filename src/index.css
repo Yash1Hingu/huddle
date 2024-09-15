@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-*{
+* {
     @apply font-lato;
+}
+
+@layer utilities {
+    .scrollbar-thick::-webkit-scrollbar {
+        @apply w-2;
+    }
+
+    .scrollbar-thick::-webkit-scrollbar-track {
+        background: #e5e7eb;
+        /* Tailwind's gray-300 */
+    }
+
+    .scrollbar-thick::-webkit-scrollbar-thumb {
+        @apply bg-primary rounded;
+    }
+
+    .scrollbar-thick::-webkit-scrollbar-thumb:hover {
+        background: #374151;
+        /* Tailwind's gray-800 */
+    }
 }
