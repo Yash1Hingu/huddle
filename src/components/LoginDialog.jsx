@@ -1,6 +1,38 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
+import axios from 'axios';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
-function LoginDialog({openLogin, handleCloseLogin}) {
+function LoginDialog({ openLogin, handleCloseLogin }) {
+
+    const [user, setUser] = useState({
+        email: '',
+        password: ''
+    });
+
+    const navigate = useNavigate();
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        setUser((prevUser) => ({
+            ...prevUser,
+            [name]: value
+        }));
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        axios.post('http://localhost:3000/api/user/login', user).then((response) => {
+            Cookies.set('authToken', response.data.token, { expires: 7 });
+            navigate('/dashboard/0');
+        }).catch(error => {
+            alert("Try again");
+        })
+    }
+
+
     return (
         <Dialog open={openLogin} onClose={handleCloseLogin} PaperProps={{
             style: {
@@ -23,6 +55,9 @@ function LoginDialog({openLogin, handleCloseLogin}) {
                     type="email"
                     fullWidth
                     variant="filled"
+                    value={user.email}
+                    name='email'
+                    onChange={handleChange}
                     InputProps={{
                         style: {
                             backgroundColor: '#333', // Input background
@@ -40,6 +75,9 @@ function LoginDialog({openLogin, handleCloseLogin}) {
                     type="password"
                     fullWidth
                     variant="filled"
+                    value={user.password}
+                    name='password'
+                    onChange={handleChange}
                     InputProps={{
                         style: {
                             backgroundColor: '#333', // Input background
@@ -55,7 +93,7 @@ function LoginDialog({openLogin, handleCloseLogin}) {
                 <Button onClick={handleCloseLogin} style={{ color: '#999' }}>
                     Cancel
                 </Button>
-                <Button onClick={handleCloseLogin} style={{
+                <Button onClick={handleSubmit} style={{
                     backgroundColor: '#4a90e2', // Slack-like blue
                     color: '#fff',
                     padding: '8px 16px',

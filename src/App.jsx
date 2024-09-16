@@ -1,11 +1,14 @@
+import { Route, Routes } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import WelcomePage from "./pages/WelcomePage";
 
 function App() {
   return (
     <>
-      {/* <Dashboard /> */}
-      <WelcomePage />
+      <Routes>
+        <Route path='/' element={<WelcomePage />} />
+        <Route path='/dashboard/:channelId' element={<Dashboard />} />
+      </Routes>
     </>
   )
 }

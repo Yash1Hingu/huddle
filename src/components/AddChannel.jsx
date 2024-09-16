@@ -1,14 +1,13 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
-import axios from 'axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
 import Cookies from 'js-cookie';
 
-function RegisterDialog({ openRegister, handleCloseRegister }) {
-    const [user, setUser] = useState({
-        username: '',
-        email: '',
-        password: ''
+function AddChannel({ openAddChannel, handleCloseChannelBox }) {
+
+    const [channel, setChannel] = useState({
+        channelName: ''
     });
 
     const navigate = useNavigate();
@@ -16,23 +15,27 @@ function RegisterDialog({ openRegister, handleCloseRegister }) {
     const handleChange = (e) => {
         const { name, value } = e.target;
 
-        setUser((prevUser) => ({
+        setChannel((prevUser) => ({
             ...prevUser,
             [name]: value
         }));
     }
 
     const handleSubmit = (e) => {
-        axios.post('http://localhost:3000/api/user', user).then((response) => {
-            Cookies.set('authToken', response.data.token, { expires: 7 });
-            navigate('/dashboard/0');
+        const token = Cookies.get('authToken');
+        axios.post('http://localhost:3000/api/channel/create', channel, {
+            headers: {
+                Authorization: `Bearer ${token}`  // Adding the token to the headers
+            }
+        }).then((response) => {
+            handleCloseChannelBox();
         }).catch(error => {
             alert("Try again");
         })
     }
 
     return (
-        <Dialog open={openRegister} onClose={handleCloseRegister} PaperProps={{
+        <Dialog open={openAddChannel} onClose={handleCloseChannelBox} PaperProps={{
             style: {
                 backgroundColor: '#1a1a1a', // Dark background
                 color: '#ffffff', // White text
@@ -42,59 +45,19 @@ function RegisterDialog({ openRegister, handleCloseRegister }) {
             }
         }}>
             <DialogTitle style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: '10px' }}>
-                Register
+                New Channel
             </DialogTitle>
             <DialogContent style={{ paddingTop: '20px' }}>
                 <TextField
                     autoFocus
                     margin="dense"
                     id="name"
-                    label="Username"
+                    label="channel name"
                     type="text"
                     fullWidth
                     variant="filled"
-                    value={user.username}
-                    name='username'
-                    onChange={handleChange}
-                    InputProps={{
-                        style: {
-                            backgroundColor: '#333', // Input background
-                            color: '#fff', // Text color
-                        },
-                    }}
-                    InputLabelProps={{
-                        style: { color: '#aaa' }, // Label color
-                    }}
-                />
-                <TextField
-                    margin="dense"
-                    id="email"
-                    label="Email Address"
-                    type="email"
-                    fullWidth
-                    variant="filled"
-                    value={user.email}
-                    name='email'
-                    onChange={handleChange}
-                    InputProps={{
-                        style: {
-                            backgroundColor: '#333', // Input background
-                            color: '#fff', // Text color
-                        },
-                    }}
-                    InputLabelProps={{
-                        style: { color: '#aaa' }, // Label color
-                    }}
-                />
-                <TextField
-                    margin="dense"
-                    id="password"
-                    label="Password"
-                    type="password"
-                    fullWidth
-                    variant="filled"
-                    value={user.password}
-                    name='password'
+                    value={channel.channelName}
+                    name='channelName'
                     onChange={handleChange}
                     InputProps={{
                         style: {
@@ -108,7 +71,7 @@ function RegisterDialog({ openRegister, handleCloseRegister }) {
                 />
             </DialogContent>
             <DialogActions style={{ padding: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                <Button onClick={handleCloseRegister} style={{ color: '#999' }}>
+                <Button onClick={handleCloseChannelBox} style={{ color: '#999' }}>
                     Cancel
                 </Button>
                 <Button onClick={handleSubmit} style={{
@@ -118,11 +81,11 @@ function RegisterDialog({ openRegister, handleCloseRegister }) {
                     borderRadius: '6px',
                 }}
                 >
-                    Register
+                    add new channel
                 </Button>
             </DialogActions>
         </Dialog>
-    );
+    )
 }
 
-export default RegisterDialog;
+export default AddChannel
