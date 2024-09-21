@@ -1,16 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import { AddOutlined, CreateOutlined } from "@mui/icons-material"
+import { AddOutlined, CreateOutlined, Notifications } from "@mui/icons-material"
 import { Avatar } from "@mui/material";
 import axios from "axios";
 import Cookies from 'js-cookie';
 import AddChannel from "./AddChannel";
 import { useNavigate, useParams } from "react-router-dom";
+import Notification from "../pages/Notification";
 
 
 function SideBar({ setChannelName }) {
 
     const [channels, setChannels] = useState([]);
     const [openAddChannel, setOpenAddChannel] = useState(false);
+    const [openNotification, setOpenNotification] = useState(false);
     const navigate = useNavigate();
     const { channelId } = useParams();
 
@@ -26,6 +28,15 @@ function SideBar({ setChannelName }) {
     const handleCloseChannelBox = () => {
         getChannels();
         setOpenAddChannel(false);
+    }
+
+    const handleOpenNotification = () => {
+        setOpenNotification(true);
+    }
+
+    const handleCloseNotification = () => {
+        getChannels();
+        setOpenNotification(false);
     }
 
     const getChannels = () => {
@@ -48,12 +59,12 @@ function SideBar({ setChannelName }) {
 
     useEffect(() => {
         getChannels();
-    }, [])
+    }, [openNotification])
 
 
     return (
         <>
-            <div className="bg-primary h-[93vh] flex text-white border-t-2 border-gray-500 border-opacity-30 min-w-[360px]">
+            <div className="bg-primary h-[93vh] flex text-white border-t-2 border-gray-500 border-opacity-30 max-w-[360px]">
                 <div className="border-r-2 border-gray-500 border-opacity-30 px-2 py-4 flex flex-col gap-4 items-center">
                     <button className="border-4 border-white rounded-xl">
                         <Avatar
@@ -71,6 +82,9 @@ function SideBar({ setChannelName }) {
                     </button>
                     <button className="mt-4">
                         <AddOutlined />
+                    </button>
+                    <button className="mt-4" onClick={handleOpenNotification}>
+                        <Notifications />
                     </button>
                 </div>
                 <div className="w-full">
@@ -101,6 +115,11 @@ function SideBar({ setChannelName }) {
             <AddChannel
                 openAddChannel={openAddChannel}
                 handleCloseChannelBox={handleCloseChannelBox}
+            />
+
+            <Notification
+                openNotification={openNotification}
+                handleCloseNotification={handleCloseNotification}
             />
         </>
     )

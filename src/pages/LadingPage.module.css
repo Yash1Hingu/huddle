@@ -1,0 +1,20 @@
+@media (min-width: 768px) {
+    .landingpage {
+        background-image: url('/src/assets/images/landingpage/bg-hero-desktop.svg');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        height: 100vh;
+        @apply bg-very-pale-cyan flex flex-col;
+        max-width: 1600px;
+        margin: auto;
+    }
+}
+
+.landingpage {
+    background-image: url('/src/assets/images/landingpage/bg-hero-desktop.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    @apply bg-very-pale-cyan flex flex-col;
+}

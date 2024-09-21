@@ -5,6 +5,7 @@ import { Avatar } from "@mui/material"
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import moment from 'moment';
+import ChatHeader from "./ChatHeader";
 
 function ChatBar({ channelName }) {
     const { channelId } = useParams();
@@ -26,6 +27,7 @@ function ChatBar({ channelName }) {
                 console.error('Error:', error);
             });
     }
+
 
     const handleSubmit = () => {
         const token = Cookies.get('authToken');
@@ -49,14 +51,19 @@ function ChatBar({ channelName }) {
 
     useEffect(() => {
         getChats();
+
+        const intervalId = setInterval(getChats, 3000);
+
+        return () => clearInterval(intervalId); 
     }, [channelId])
 
     return (
-        <div className="flex-1 relative">
+        <div className="flex-1 relative bg-gray-200">
             {/* chat header */}
-            <div className="p-4 border-b-2 border-gray-300">
-                <h2 className="font-bold text-xl"># {channelName}</h2>
-            </div>
+            <ChatHeader
+                channelName={channelName}
+                channelId={channelId}
+            />
             {/* chat's */}
             <div className="p-4 h-[80vh] overflow-y-scroll scrollbar-thick pb-20">
                 {/* chat message container */}
@@ -75,7 +82,7 @@ function ChatBar({ channelName }) {
                         </div>
                         <div>
                             {message.message}
-                        </div>  
+                        </div>
                     </div>
                 </div>)}
 
