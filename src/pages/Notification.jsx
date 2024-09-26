@@ -4,9 +4,11 @@ import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import Cookies from 'js-cookie';
 import { Add } from '@mui/icons-material';
+import Loader from '../components/Loader';
 
 function Notification({ openNotification, handleCloseNotification }) {
     const [notification, setNotification] = useState([]);
+    const [loading, setLoading] = useState(false);
 
 
     useEffect(() => {
@@ -26,6 +28,7 @@ function Notification({ openNotification, handleCloseNotification }) {
     }, [openNotification]);
 
     const handleJoinChannel = (link) => {
+        setLoading(true);
         const token = Cookies.get('authToken');
         axios.post(`${import.meta.env.VITE_BACKEND_URL}/api${link}/accept`, {}, {
             headers: {
@@ -34,12 +37,15 @@ function Notification({ openNotification, handleCloseNotification }) {
         })
             .then(response => {
                 console.log(response.data);
+                setLoading(false);
             })
             .catch(error => {
                 if (error.response && error.response.data && error.response.data.error) {
                     alert(error.response.data.error); // Show the error message sent from the backend
+                    setLoading(false);
                 } else {
                     alert("An unknown error occurred");
+                    setLoading(false);
                 }
             });
         handleCloseNotification();
@@ -66,12 +72,18 @@ function Notification({ openNotification, handleCloseNotification }) {
                     >
                         <h1>{n.message}</h1>
                         {!n.read && ( // Conditionally show the button if notification is unread
-                            <Button
-                                onClick={() => handleJoinChannel(n.link)}
-                                style={{ color: '#4CAF50' }}
-                            >
-                                <Add />
-                            </Button>
+                            <>
+                                {!loading ? <Button
+                                    onClick={() => handleJoinChannel(n.link)}
+                                    style={{ color: '#4CAF50' }}
+                                >
+                                    <Add />
+                                </Button> :
+                                    <span className='mx-4'>
+                                        <Loader />
+                                    </span>
+                                }
+                            </>
                         )}
                     </div>
                 )) : <div className='flex flex-col items-center'>

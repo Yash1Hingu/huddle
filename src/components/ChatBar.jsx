@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import moment from 'moment';
 import ChatHeader from "./ChatHeader";
+import Loader from "./Loader";
 
 const colors = ['#FF5733', '#33FF57', '#3357FF', '#8E44AD', '#FF33FF', '#33FFD7', '#FF914D'];
 
@@ -14,6 +15,7 @@ function ChatBar({ channelName }) {
     const messageRefs = useRef([]);
     const { channelId } = useParams();
     const [messages, setMessages] = useState([]);
+    const [loading, setLoading] = useState(false);
     const message = useRef(null);
     const scrollRef = useRef(null);
 
@@ -47,6 +49,7 @@ function ChatBar({ channelName }) {
 
 
     const handleSubmit = () => {
+        setLoading(true);
         const token = Cookies.get('authToken');
         const data = {
             message: message.current.value
@@ -60,9 +63,11 @@ function ChatBar({ channelName }) {
             .then(response => {
                 message.current.value = '';
                 getChats();
+                setLoading(false);
             })
             .catch(error => {
                 console.error('Error:', error);
+                setLoading(false);
             });
     }
 
@@ -179,16 +184,19 @@ function ChatBar({ channelName }) {
                     required
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && message != '') {
-                            handleSubmit();
+                            if (!loading) {
+                                handleSubmit();
+                            }
                         }
                     }}
                 ></input>
-                <button
-                    className="absolute right-4 bottom-4 p-4 bg-[#1164A3] rounded-md rounded-l-none"
-                    onClick={handleSubmit}
-                >
-                    <Send className="text-white" />
-                </button>
+                {!loading &&
+                    <button
+                        className="absolute right-4 bottom-4 p-4 bg-[#1164A3] rounded-md rounded-l-none"
+                        onClick={handleSubmit}
+                    >
+                        <Send className="text-white" />
+                    </button>}
             </div>
         </div>
     )

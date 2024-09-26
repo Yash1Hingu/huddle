@@ -3,12 +3,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import Cookies from 'js-cookie';
+import Loader from './Loader';
 
 function AddChannel({ openAddChannel, handleCloseChannelBox }) {
 
     const [channel, setChannel] = useState({
         channelName: ''
     });
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -22,15 +24,18 @@ function AddChannel({ openAddChannel, handleCloseChannelBox }) {
     }
 
     const handleSubmit = (e) => {
+        setLoading(true);
         const token = Cookies.get('authToken');
         axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/channel/create`, channel, {
             headers: {
                 Authorization: `Bearer ${token}`  // Adding the token to the headers
             }
         }).then((response) => {
+            setLoading(false);
             handleCloseChannelBox();
         }).catch(error => {
             alert("Try again");
+            setLoading(false);
         })
     }
 
@@ -64,6 +69,7 @@ function AddChannel({ openAddChannel, handleCloseChannelBox }) {
                             backgroundColor: '#333', // Input background
                             color: '#fff', // Text color
                         },
+                        autoComplete: "off"
                     }}
                     InputLabelProps={{
                         style: { color: '#aaa' }, // Label color
@@ -74,7 +80,7 @@ function AddChannel({ openAddChannel, handleCloseChannelBox }) {
                 <Button onClick={handleCloseChannelBox} style={{ color: '#999' }}>
                     Cancel
                 </Button>
-                <Button onClick={handleSubmit} style={{
+                {!loading ? <Button onClick={handleSubmit} style={{
                     backgroundColor: '#4a90e2', // Slack-like blue
                     color: '#fff',
                     padding: '8px 16px',
@@ -82,7 +88,11 @@ function AddChannel({ openAddChannel, handleCloseChannelBox }) {
                 }}
                 >
                     add new channel
-                </Button>
+                </Button> :
+                    <span className='px-8 py-1'>
+                        <Loader />
+                    </span>
+                }
             </DialogActions>
         </Dialog>
     )
