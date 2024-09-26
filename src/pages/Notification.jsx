@@ -1,4 +1,5 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
+import nonotification from '../assets/images/no-alarm.gif';
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import Cookies from 'js-cookie';
@@ -10,7 +11,7 @@ function Notification({ openNotification, handleCloseNotification }) {
 
     useEffect(() => {
         const token = Cookies.get('authToken');
-        axios.get('http://localhost:3000/api/notifications', {
+        axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/notifications`, {
             headers: {
                 Authorization: `Bearer ${token}`  // Adding the token to the headers
             }
@@ -26,7 +27,7 @@ function Notification({ openNotification, handleCloseNotification }) {
 
     const handleJoinChannel = (link) => {
         const token = Cookies.get('authToken');
-        axios.post(`http://localhost:3000/api${link}/accept`, {}, {
+        axios.post(`${import.meta.env.VITE_BACKEND_URL}/api${link}/accept`, {}, {
             headers: {
                 Authorization: `Bearer ${token}`  // Adding the token to the headers
             }
@@ -59,20 +60,28 @@ function Notification({ openNotification, handleCloseNotification }) {
             }}
         >
             <DialogContent style={{ paddingTop: '20px' }}>
-                {notification.map((n) => (
+                {notification.length !== 0 ? notification.map((n) => (
                     <div key={n._id}
-                        className='flex bg-gray-900 p-4 rounded-lg'
+                        className='flex bg-gray-900 p-4 rounded-lg justify-between items-center'
                     >
                         <h1>{n.message}</h1>
-                        <Button
-                            onClick={() => handleJoinChannel(notification[0].link)}
-                            style={{ color: '#4CAF50' }}
-
-                        >
-                            <Add />
-                        </Button>
+                        {!n.read && ( // Conditionally show the button if notification is unread
+                            <Button
+                                onClick={() => handleJoinChannel(n.link)}
+                                style={{ color: '#4CAF50' }}
+                            >
+                                <Add />
+                            </Button>
+                        )}
                     </div>
-                ))}
+                )) : <div className='flex flex-col items-center'>
+                    <img
+                        src={nonotification}
+                        alt="No Notification"
+                        className='mix-blend-multiply w-52'
+                    />
+                    <h5>No Notification.</h5>
+                </div>}
             </DialogContent>
             <DialogActions style={{ padding: '16px' }}>
                 <Button

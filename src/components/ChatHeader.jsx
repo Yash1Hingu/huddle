@@ -16,7 +16,7 @@ function ChatHeader({ channelName, channelId }) {
         setOpenJoin(true);
 
         const token = Cookies.get('authToken');
-        axios.get(`http://localhost:3000/api/channel/${channelId}/users`, {
+        axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/channel/${channelId}/users`, {
             headers: {
                 Authorization: `Bearer ${token}`  // Adding the token to the headers
             }
@@ -31,7 +31,7 @@ function ChatHeader({ channelName, channelId }) {
 
     function handleJoinRequest(userId){
         const token = Cookies.get('authToken');
-        axios.post(`http://localhost:3000/api/channels/${channelId}/join`,
+        axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/channels/${channelId}/join`,
             {
                 "recipientUserId": userId
             }

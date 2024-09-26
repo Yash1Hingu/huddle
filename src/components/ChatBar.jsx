@@ -7,14 +7,27 @@ import { useParams } from "react-router-dom";
 import moment from 'moment';
 import ChatHeader from "./ChatHeader";
 
+const colors = ['#FF5733', '#33FF57', '#3357FF', '#8E44AD', '#FF33FF', '#33FFD7', '#FF914D'];
+
 function ChatBar({ channelName }) {
+    const [currentDate, setCurrentDate] = useState('');
+    const messageRefs = useRef([]);
     const { channelId } = useParams();
     const [messages, setMessages] = useState([]);
     const message = useRef(null);
+    const scrollRef = useRef(null);
+
+    const getUsernameColor = (username) => {
+        let sum = 0;
+        for (let i = 0; i < username.length; i++) {
+            sum += username.charCodeAt(i);
+        }
+        return colors[sum % colors.length];
+    };
 
     const getChats = () => {
         const token = Cookies.get('authToken');
-        axios.get(`http://localhost:3000/api/channels/${channelId}/messages`, {
+        axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/channels/${channelId}/messages`, {
             headers: {
                 Authorization: `Bearer ${token}`  // Adding the token to the headers
             }
@@ -26,6 +39,10 @@ function ChatBar({ channelName }) {
             .catch(error => {
                 console.error('Error:', error);
             });
+
+        if (scrollRef.current) {
+            scrollRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
     }
 
 
@@ -35,7 +52,7 @@ function ChatBar({ channelName }) {
             message: message.current.value
         };
 
-        axios.post(`http://localhost:3000/api/channels/${channelId}/messages`, data, {
+        axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/channels/${channelId}/messages`, data, {
             headers: {
                 Authorization: `Bearer ${token}`  // Adding the token to the headers
             }
@@ -50,43 +67,108 @@ function ChatBar({ channelName }) {
     }
 
     useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const messageDate = entry.target.getAttribute('data-date');
+                        setCurrentDate(messageDate);
+                    }
+                });
+            },
+            { threshold: 0.5 } // Adjust this threshold to detect when a message is fully in view
+        );
+
+        messageRefs.current.forEach(ref => {
+            if (ref) {
+                observer.observe(ref);
+            }
+        });
+
+
+        if (scrollRef.current) {
+            scrollRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+
         getChats();
 
         const intervalId = setInterval(getChats, 3000);
 
-        return () => clearInterval(intervalId); 
+        return () => {
+            clearInterval(intervalId);
+            observer.disconnect();
+
+        }
     }, [channelId])
 
     return (
-        <div className="flex-1 relative bg-gray-200">
+        <div className="mt-12 md:mt-0 flex-1 relative bg-gray-200">
             {/* chat header */}
             <ChatHeader
                 channelName={channelName}
                 channelId={channelId}
             />
             {/* chat's */}
-            <div className="p-4 h-[80vh] overflow-y-scroll scrollbar-thick pb-20">
-                {/* chat message container */}
-                {messages.map(message => <div className="flex items-start gap-2 mb-4" key={message.time}>
-                    <div>
-                        <Avatar
-                            alt="User Profile"
-                            src='https://via.placeholder.com/200'
-                            sx={{ width: 45, height: 45, borderRadius: '8px', margin: '2px' }}
-                        />
-                    </div>
-                    <div className="w-10/12">
-                        <div className="flex gap-2">
-                            <span className="font-bold">{message.sender.username}</span>
-                            <span className="opacity-70">{moment(message.time).format('HH:mm')}</span>
-                        </div>
-                        <div>
-                            {message.message}
-                        </div>
-                    </div>
-                </div>)}
+            <div className="relative">
+                {/* Floating Date Header */}
+                <div className="absolute top-4 left-0 right-0 w-fit z-20 m-auto bg-gray-200 text-center p-2 shadow-md rounded-xl">
+                    {currentDate ? moment(currentDate).format('MMMM Do YYYY') : ''}
+                </div>
 
+                <div className="p-4 h-[80vh] overflow-y-scroll scrollbar-thick pb-20">
+                    {/* chat message container */}
+                    {messages?.messages?.map((message, index) => {
+                        const messageDate = moment(message.createdAt).format('YYYY-MM-DD');
+                        const prevMessageDate = index > 0 ? moment(messages.messages[index - 1].createdAt).format('YYYY-MM-DD') : null;
+                        const userColor = getUsernameColor(message.sender.username);
+
+                        return (
+                            <div key={message.time} ref={el => messageRefs.current[index] = el} data-date={messageDate}>
+                                {/* Show date header if it's the first message of the day or the date has changed */}
+                                {messageDate !== prevMessageDate && (
+                                    <div className="text-center text-gray-500 my-4">
+                                        {moment(message.createdAt).format('MMMM Do YYYY')}
+                                    </div>
+                                )}
+
+                                {/* Chat message */}
+                                <div className={`flex gap-2 mb-4 ${messages.username === message.sender.username ? 'justify-end' : ''}`}>
+                                    {/* Check if the message is sent by the logged-in user */}
+                                    {messages.username !== message.sender.username && (
+                                        <Avatar
+                                            alt="User Profile"
+                                            src='https://via.placeholder.com/200'
+                                            sx={{ width: 45, height: 45, borderRadius: '8px', margin: '2px' }}
+                                        />
+                                    )}
+                                    <div
+                                        className={`p-3 rounded-lg ${messages.username === message.sender.username ? 'bg-primary bg-opacity-30' : 'bg-gray-100'
+                                            }`}
+                                    >
+                                        <div className="flex gap-2">
+                                            <span className="font-bold"
+                                                style={{ color: userColor }}
+                                            >{message.sender.username}</span>
+                                            <span className="opacity-70">{moment(message.createdAt).format('HH:mm')}</span>
+                                        </div>
+                                        <div>{message.message}</div>
+                                    </div>
+                                    {/* Display avatar on the right side if it's the logged-in user's message */}
+                                    {messages.username === message.sender.username && (
+                                        <Avatar
+                                            alt="User Profile"
+                                            src='https://via.placeholder.com/200'
+                                            sx={{ width: 45, height: 45, borderRadius: '8px', margin: '2px' }}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                    <div ref={scrollRef}></div>
+                </div>
             </div>
+
             {/* chat bottom -- chat input */}
             <div className="absolute p-4 w-full bottom-0 ">
                 <input
@@ -94,6 +176,12 @@ function ChatBar({ channelName }) {
                     className="w-full border-2 border-gray-500 rounded-md px-2 py-4 outline-none"
                     placeholder="Message #social-media"
                     ref={message}
+                    required
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' && message != '') {
+                            handleSubmit();
+                        }
+                    }}
                 ></input>
                 <button
                     className="absolute right-4 bottom-4 p-4 bg-[#1164A3] rounded-md rounded-l-none"

@@ -23,7 +23,7 @@ function AddChannel({ openAddChannel, handleCloseChannelBox }) {
 
     const handleSubmit = (e) => {
         const token = Cookies.get('authToken');
-        axios.post('http://localhost:3000/api/channel/create', channel, {
+        axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/channel/create`, channel, {
             headers: {
                 Authorization: `Bearer ${token}`  // Adding the token to the headers
             }

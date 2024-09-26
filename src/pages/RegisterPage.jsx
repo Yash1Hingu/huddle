@@ -32,7 +32,7 @@ function RegisterPage() {
     const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
-        axios.post('http://localhost:3000/api/user', user).then((response) => {
+        axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/user`, user).then((response) => {
             Cookies.set('authToken', response.data.token, { expires: 7 });
             setLoading(false);
             navigate('/dashboard/0');
