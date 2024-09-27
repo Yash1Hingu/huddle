@@ -7,6 +7,7 @@ import image from '../assets/images/loginregister/yash-3d.png';
 import message from '../assets/images/loginregister/message.gif';
 import Loader from '../components/Loader';
 import Layout from '../layouts/Layout';
+import { isPassword } from '../util/validation';
 
 function LoginPage() {
 
@@ -32,6 +33,15 @@ function LoginPage() {
     const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
+
+        const msg = isPassword(user.password);
+
+        if (msg) {
+            setError(msg);
+            setLoading(false);
+            return;
+        }
+
         axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/user/login`, user).then((response) => {
             Cookies.set('authToken', response.data.token, { expires: 7 });
             setLoading(false);
@@ -52,7 +62,7 @@ function LoginPage() {
                 >
                     <NavLink to='/'>
                         <img src={logo} alt="logo"
-                        className='w-[100px] m-auto md:w-auto md:m-0'
+                            className='w-[100px] m-auto md:w-auto md:m-0'
                         />
                     </NavLink>
                 </div>

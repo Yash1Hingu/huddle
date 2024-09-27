@@ -81,7 +81,7 @@ function ChatBar({ channelName }) {
                     }
                 });
             },
-            { threshold: 0.5 } // Adjust this threshold to detect when a message is fully in view
+            { threshold: 0.5 }
         );
 
         messageRefs.current.forEach(ref => {
@@ -117,7 +117,7 @@ function ChatBar({ channelName }) {
             <div className="relative">
                 {/* Floating Date Header */}
                 <div className="absolute top-4 left-0 right-0 w-fit z-20 m-auto bg-gray-200 text-center p-2 shadow-md rounded-xl">
-                    {currentDate ? moment(currentDate).format('MMMM Do YYYY') : ''}
+                    {currentDate && moment(currentDate).format('MMMM Do YYYY')}
                 </div>
 
                 <div className="p-4 h-[80vh] overflow-y-scroll scrollbar-thick pb-20">

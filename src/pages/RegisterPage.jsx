@@ -7,6 +7,7 @@ import image from '../assets/images/loginregister/yash-3d.png';
 import message from '../assets/images/loginregister/message.gif';
 import Loader from '../components/Loader';
 import Layout from '../layouts/Layout';
+import { isUsername, isValid } from '../util/validation';
 
 function RegisterPage() {
 
@@ -32,6 +33,15 @@ function RegisterPage() {
     const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
+
+        const msg = isValid(user.username, user.password);
+
+        if (msg) {
+            setError(msg);
+            setLoading(false);
+            return;
+        }
+        
         axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/user`, user).then((response) => {
             Cookies.set('authToken', response.data.token, { expires: 7 });
             setLoading(false);
@@ -50,7 +60,7 @@ function RegisterPage() {
                     className='px-16 pt-8 md:py-8'
                 >
                     <NavLink to='/'>
-                        <img src={logo} alt="logo" className='w-[100px] m-auto md:w-auto md:m-0'/>
+                        <img src={logo} alt="logo" className='w-[100px] m-auto md:w-auto md:m-0' />
                     </NavLink>
                 </div>
                 <div
